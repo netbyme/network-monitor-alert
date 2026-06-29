@@ -28,3 +28,22 @@ devices = ["192.168.1.1", "192.168.1.2", "192.168.1.100"]
 print("=== Network Monitor ===\n")
 for ip in devices:
     check_device(ip)
+# Part 2 - Loop continuously and monitor every X minutes
+import time
+
+def monitor_network(devices, interval=60):
+    print("=== Network Monitor Started ===")
+    print(f"Checking every {interval} seconds\n")
+    
+    while True:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"--- Scan at {timestamp} ---")
+        
+        for ip in devices:
+            check_device(ip)
+        
+        print(f"\nNext scan in {interval} seconds...\n")
+        time.sleep(interval)
+
+# monitor every 30 seconds
+monitor_network(devices, interval=30)
