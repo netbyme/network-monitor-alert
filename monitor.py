@@ -47,3 +47,18 @@ def monitor_network(devices, interval=60):
 
 # monitor every 30 seconds
 monitor_network(devices, interval=30)
+# Part 3 - Write alerts to a log file when device goes down
+
+def check_device(ip):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    if ping_device(ip):
+        print(f"[{timestamp}] [UP]   {ip} is reachable")
+    else:
+        print(f"[{timestamp}] [DOWN] {ip} is unreachable")
+        log_alert(ip, timestamp)
+
+def log_alert(ip, timestamp):
+    with open("alerts.log", "a") as f:
+        f.write(f"[{timestamp}] ALERT: {ip} is DOWN\n")
+    print(f"  -> Alert logged to alerts.log")
