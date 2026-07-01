@@ -62,3 +62,56 @@ def log_alert(ip, timestamp):
     with open("alerts.log", "a") as f:
         f.write(f"[{timestamp}] ALERT: {ip} is DOWN\n")
     print(f"  -> Alert logged to alerts.log")
+# Part 4 - Send email alert when device goes down
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+# email settings — update with your details
+EMAIL_SENDER = "your-email@gmail.com"
+EMAIL_PASSWORD = "your-app-password"
+EMAIL_RECEIVER = "your-email@gmail.com"
+
+def send_email_alert(ip, timestamp):
+    try:
+        # create email
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_SENDER
+        msg['To'] = EMAIL_RECEIVER
+        msg['Subject'] = f"NETWORK ALERT - {ip} is DOWN"
+        
+        body = f"""
+Network Monitor Alert
+
+Device {ip} is unreachable.
+Time: {timestamp}
+
+Please investigate immediately.
+
+-- Network Monitor Script
+        """
+        
+        msg.attach(MIMEText(body, 'plain'))
+        
+        # send via Gmail SMTP
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+        server.sendmail(EMAIL_SENDER, EMAIL_RECEIVER, msg.as_string())
+        server.quit()
+        
+        print(f"  -> Email alert sent to {EMAIL_RECEIVER}")
+    
+    except Exception as e:
+        print(f"  -> Email failed: {e}")
+
+# update check_device to also send email
+def check_device(ip):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    if ping_device(ip):
+        print(f"[{timestamp}] [UP]   {ip} is reachable")
+    else:
+        print(f"[{timestamp}] [DOWN] {ip} is unreachable")
+        log_alert(ip, timestamp)
+        send_email_alert(ip, timestamp)
